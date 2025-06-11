@@ -46,7 +46,7 @@ const Board: React.FC = () => {
 
     // Moving within same column
     if (startColumn === endColumn) {
-      const newTaskIds = Array.from(startColumn.taskIds);
+      const newTaskIds = Array.from(startColumn.taskIds || []);
       const [moved] = newTaskIds.splice(source.index, 1);
       newTaskIds.splice(destination.index, 0, moved);
 
@@ -57,9 +57,9 @@ const Board: React.FC = () => {
       });
     } else {
       // Moving to different column
-      const startTaskIds = Array.from(startColumn.taskIds);
+      const startTaskIds = Array.from(startColumn.taskIds || []);
       const [moved] = startTaskIds.splice(source.index, 1);
-      const endTaskIds = Array.from(endColumn.taskIds);
+      const endTaskIds = Array.from(endColumn.taskIds || []);
       endTaskIds.splice(destination.index, 0, moved);
 
       setData({
@@ -78,7 +78,7 @@ const Board: React.FC = () => {
       <div style={{ display: 'flex', gap: '20px' }}>
         {data.columnOrder.map((columnId) => {
           const column = data.columns[columnId];
-          const tasks = column.taskIds.map((taskId) => data.tasks[taskId]);
+          const tasks = column.taskIds?.map((taskId) => data.tasks[taskId]);
 
           return (
             <Droppable droppableId={column.id} key={column.id}>
@@ -94,7 +94,7 @@ const Board: React.FC = () => {
                   }}
                 >
                   <h3>{column.title}</h3>
-                  {tasks.map((task, index) => (
+                  {tasks?.map((task, index) => (
                     <Draggable draggableId={task.id} index={index} key={task.id}>
                       {(provided, snapshot) => (
                         <div
