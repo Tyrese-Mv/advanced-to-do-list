@@ -1,23 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DragDropContext,
-  Droppable,
-  Draggable,
   type DropResult
 } from '@hello-pangea/dnd';
-import type { BoardData } from '../../util/types';
+import type { BoardData, Task } from '../../util/types';
+import { taskServices } from '../services/coreServices';
+import ColumnComponent from '../components/ColumnComponent';
 
 const initialData: BoardData = {
-  tasks: {
-    'task-1': { id: 'task-1', content: 'Write resume' },
-    'task-2': { id: 'task-2', content: 'Learn TypeScript' },
-    'task-3': { id: 'task-3', content: 'Build a portfolio' },
-  },
+  tasks: {},
   columns: {
     'column-1': {
       id: 'column-1',
       title: 'To Do',
-      taskIds: ['task-1', 'task-2', 'task-3'],
+      taskIds: [],
     },
     'column-2': {
       id: 'column-2',
@@ -31,7 +27,35 @@ const initialData: BoardData = {
 const Board: React.FC = () => {
   const [data, setData] = useState<BoardData>(initialData);
 
-  const onDragEnd = (result: DropResult) => {
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const tasks = await taskServices.getAllTasks();
+        const taskMap = tasks.reduce((acc, task) => {
+          acc[task.id] = task;
+          return acc;
+        }, {} as { [key: string]: Task });
+
+        setData(prev => ({
+          ...prev,
+          tasks: taskMap,
+          columns: {
+            ...prev.columns,
+            'column-1': {
+              ...prev.columns['column-1'],
+              taskIds: tasks.map(task => task.id)
+            }
+          }
+        }));
+      } catch (error) {
+        console.error('Failed to fetch tasks:', error);
+      }
+    };
+
+    fetchTasks();
+  }, []);
+
+  const onDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
 
     if (!destination) return;
@@ -74,52 +98,12 @@ const Board: React.FC = () => {
   };
 
   return (
+    
     <DragDropContext onDragEnd={onDragEnd}>
       <div style={{ display: 'flex', gap: '20px' }}>
         {data.columnOrder.map((columnId) => {
           const column = data.columns[columnId];
-          const tasks = column.taskIds?.map((taskId) => data.tasks[taskId]);
-
-          return (
-            <Droppable droppableId={column.id} key={column.id}>
-              {(provided) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  style={{
-                    background: '#f4f4f4',
-                    padding: 10,
-                    width: 250,
-                    minHeight: 300,
-                  }}
-                >
-                  <h3>{column.title}</h3>
-                  {tasks?.map((task, index) => (
-                    <Draggable draggableId={task.id} index={index} key={task.id}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={{
-                            padding: 12,
-                            marginBottom: 8,
-                            backgroundColor: snapshot.isDragging ? '#007acc' : '#005f99',
-                            color: 'white',
-                            borderRadius: 4,
-                            ...provided.draggableProps.style,
-                          }}
-                        >
-                          {task.content}
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          );
+          return <ColumnComponent key={column.id} {...column} tasks={data.tasks} />;
         })}
       </div>
     </DragDropContext>

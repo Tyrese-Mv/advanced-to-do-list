@@ -1,20 +1,16 @@
-const register = (email: string, password: string) =>{
+const register = async (email: string, password: string) => {
     const userData = {
-        "email" :email,
-        "password":password
+        "email": email,
+        "password": password
     }
-    fetch("http://localhost:3000/register",{
+    const response = await fetch("http://localhost:3000/register", {
+        method: 'POST',
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify(userData)
-    }).then((response) => response.json())
-    .then((responseData) => {
-        console.log("Response:", responseData);
-    })
-    .catch((error) => {
-        console.error("Error:", error);
     });
+    return response.json();
 }
 
 const login = async (email: string, password: string) => {

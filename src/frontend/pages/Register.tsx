@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
 import { register } from '../services/authServices';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await register(email, password);
-      setMessage('Account created successfully!');
+      const response = await register(email, password);
+      if (response) {
+        setMessage('Account created successfully!');
+        navigate('/main');
+      }
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       setMessage(error.response?.data?.message || 'Registration failed');

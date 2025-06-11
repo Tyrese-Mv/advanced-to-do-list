@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../services/authServices';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,6 +16,7 @@ const Login: React.FC = () => {
       if (res && res.data?.token) {
         localStorage.setItem('token', res.data.token);
         setToken(res.data.token);
+        navigate('/main');
       }
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } }, message?: string };

@@ -1,10 +1,12 @@
 import express from 'express';
+import cors from 'cors'
 // import type { Response } from 'express';
 import { register, login } from '../auth/auth.controller';
 import { authenticateJWT } from '../auth/auth.middleware';
 import { addTask, AllTasks, removeTask } from '../controllers/controller.tasks';
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.post('/register', register as express.RequestHandler);
