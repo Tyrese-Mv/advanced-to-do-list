@@ -4,7 +4,7 @@ const API_URL = 'http://localhost:3000';
 
 export const taskServices = {
     // Get all tasks for the current user
-    getAllTasks: async (): Promise<Task[]> => {
+    getAllTasks: async (): Promise<{ tasks: Task[] }> => {
         const response = await fetch(`${API_URL}/tasks`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
