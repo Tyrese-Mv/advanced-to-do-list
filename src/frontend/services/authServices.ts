@@ -19,6 +19,7 @@ const login = async (email: string, password: string) => {
         "password": password
     }
     const response = await fetch("http://localhost:3000/login", {
+        method: 'POST',
         headers: {
             "Content-Type": "application/json",
         },
