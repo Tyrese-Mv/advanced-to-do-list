@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {useNavigate } from 'react-router-dom';
 
 export default function CreateTask() {
   const [formData, setFormData] = useState({
@@ -7,13 +8,15 @@ export default function CreateTask() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const createTask = async (content: string) => {
     try {
-      const response = await fetch('/addTask', {
+      const response = await fetch('http://localhost:3000/addTask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
           content
@@ -27,6 +30,7 @@ export default function CreateTask() {
       const data = await response.json();
       console.log('Task created:', data);
       setSuccess(true);
+      navigate("/main")
       return data;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
@@ -59,8 +63,7 @@ export default function CreateTask() {
     }
 
     try {
-      const content = `content: ${description}`;
-      await createTask(content);
+      await createTask(description);
       setFormData({task_description: '' });
     } catch (error) {
       console.error('Task creation failed:', error);
