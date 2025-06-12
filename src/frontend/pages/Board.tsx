@@ -3,9 +3,10 @@ import {
   DragDropContext,
   type DropResult
 } from '@hello-pangea/dnd';
-import type { BoardData, Task } from '../../util/types';
+import type { BoardData } from '../../util/types';
 import { taskServices } from '../services/coreServices';
 import ColumnComponent from '../components/ColumnComponent';
+import { Link } from 'react-router-dom';
 
 const initialData: BoardData = {
   tasks: {},
@@ -26,24 +27,21 @@ const initialData: BoardData = {
 
 const Board: React.FC = () => {
   const [data, setData] = useState<BoardData>(initialData);
-
+  
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const tasks = await taskServices.getAllTasks();
-        const taskMap = tasks.reduce((acc, task) => {
-          acc[task.id] = task;
-          return acc;
-        }, {} as { [key: string]: Task });
+        const response = await taskServices.getAllTasks();
+        const taskList = response.tasks;
 
         setData(prev => ({
           ...prev,
-          tasks: taskMap,
+          tasks: taskList.reduce((acc, task) => ({ ...acc, [task.id]: task }), {}),
           columns: {
             ...prev.columns,
             'column-1': {
               ...prev.columns['column-1'],
-              taskIds: tasks.map(task => task.id)
+              taskIds: taskList.map(task => task.id)
             }
           }
         }));
@@ -54,6 +52,7 @@ const Board: React.FC = () => {
 
     fetchTasks();
   }, []);
+
 
   const onDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
@@ -98,7 +97,8 @@ const Board: React.FC = () => {
   };
 
   return (
-    
+    <>
+    <Link to="/add">Add new task</Link>
     <DragDropContext onDragEnd={onDragEnd}>
       <div style={{ display: 'flex', gap: '20px' }}>
         {data.columnOrder.map((columnId) => {
@@ -107,6 +107,8 @@ const Board: React.FC = () => {
         })}
       </div>
     </DragDropContext>
+    </>
+    
   );
 };
 
