@@ -1,3 +1,6 @@
+// ColumnComponent.tsx
+// Renders a single column in the Kanban board, including its tasks as draggable items.
+
 import React from 'react';
 import {
   Droppable,
@@ -5,10 +8,22 @@ import {
 } from '@hello-pangea/dnd';
 import { Column, Task } from '../../util/types';
 
+/**
+ * Props for ColumnComponent
+ * @property tasks - Mapping of task IDs to Task objects
+ */
 interface ColumnComponentProps extends Column {
   tasks: { [key: string]: Task };
 }
 
+/**
+ * ColumnComponent
+ * Displays a column with its tasks, making them draggable within the column.
+ * @param id - Column ID
+ * @param title - Column title
+ * @param taskIds - Array of task IDs in this column
+ * @param tasks - Mapping of all tasks
+ */
 export default function ColumnComponent({ id, title, taskIds = [], tasks }: ColumnComponentProps) {
     return (
         <Droppable droppableId={id} key={id}>

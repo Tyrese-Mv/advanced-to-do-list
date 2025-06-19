@@ -3,10 +3,19 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
+/**
+ * Extended Express Request interface to include user email.
+ */
 export interface AuthRequest extends Request {
   user?: { email: string };
 }
 
+/**
+ * Middleware to authenticate JWT tokens in incoming requests.
+ * @param {AuthRequest} req - Express request object with optional user property.
+ * @param {Response} res - Express response object.
+ * @param {NextFunction} next - Express next middleware function.
+ */
 export const authenticateJWT = (
   req: AuthRequest,
   res: Response,

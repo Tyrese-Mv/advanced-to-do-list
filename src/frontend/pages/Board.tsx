@@ -1,114 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import {
-  DragDropContext,
-  type DropResult
-} from '@hello-pangea/dnd';
-import type { BoardData } from '../../util/types';
-import { taskServices } from '../services/coreServices';
-import ColumnComponent from '../components/ColumnComponent';
+// Board.tsx
+// This component renders the main Kanban board, handling drag-and-drop and task management.
+// It uses custom hooks for board data and drag-and-drop logic, and renders columns and the delete area.
+
+import React, { useEffect } from 'react';
+import { DragDropContext } from '@hello-pangea/dnd';
 import { Link } from 'react-router-dom';
+import ColumnComponent from '../components/ColumnComponent';
+import DeleteTaskComponent from '../components/DeleteTaskComponent';
+import { useBoardData } from '../hooks/useBoardData';
+import { useBoardDnD } from '../hooks/useBoardDnD';
 
-const initialData: BoardData = {
-  tasks: {},
-  columns: {
-    'column-1': {
-      id: 'column-1',
-      title: 'To Do',
-      taskIds: [],
-    },
-    'column-2': {
-      id: 'column-2',
-      title: 'Done',
-      taskIds: [],
-    },
-  },
-  columnOrder: ['column-1', 'column-2'],
-};
-
+/**
+ * Board component displays the Kanban board with columns and tasks.
+ * Handles drag-and-drop and task deletion using custom hooks.
+ */
 const Board: React.FC = () => {
-  const [data, setData] = useState<BoardData>(initialData);
-  
+  // useBoardData manages board state and fetching tasks from backend
+  const { data, setData, fetchTasks } = useBoardData();
+  const {
+    showDeleteColumn,
+    taskToDelete,
+    setTaskToDelete,
+    onBeforeDragStart,
+    onDragEnd,
+  } = useBoardDnD(data, setData, fetchTasks);
+
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await taskServices.getAllTasks();
-        const taskList = response.tasks;
-
-        setData(prev => ({
-          ...prev,
-          tasks: taskList.reduce((acc, task) => ({ ...acc, [task.id]: task }), {}),
-          columns: {
-            ...prev.columns,
-            'column-1': {
-              ...prev.columns['column-1'],
-              taskIds: taskList.map(task => task.id)
-            }
-          }
-        }));
-      } catch (error) {
-        console.error('Failed to fetch tasks:', error);
-      }
-    };
-
     fetchTasks();
-  }, []);
-
-
-  const onDragEnd = async (result: DropResult) => {
-    const { source, destination } = result;
-
-    if (!destination) return;
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    )
-      return;
-
-    const startColumn = data.columns[source.droppableId];
-    const endColumn = data.columns[destination.droppableId];
-
-    // Moving within same column
-    if (startColumn === endColumn) {
-      const newTaskIds = Array.from(startColumn.taskIds || []);
-      const [moved] = newTaskIds.splice(source.index, 1);
-      newTaskIds.splice(destination.index, 0, moved);
-
-      const newColumn = { ...startColumn, taskIds: newTaskIds };
-      setData({
-        ...data,
-        columns: { ...data.columns, [newColumn.id]: newColumn },
-      });
-    } else {
-      // Moving to different column
-      const startTaskIds = Array.from(startColumn.taskIds || []);
-      const [moved] = startTaskIds.splice(source.index, 1);
-      const endTaskIds = Array.from(endColumn.taskIds || []);
-      endTaskIds.splice(destination.index, 0, moved);
-
-      setData({
-        ...data,
-        columns: {
-          ...data.columns,
-          [startColumn.id]: { ...startColumn, taskIds: startTaskIds },
-          [endColumn.id]: { ...endColumn, taskIds: endTaskIds },
-        },
-      });
-    }
-  };
+  }, [fetchTasks]);
 
   return (
     <>
-    <Link to="/add">Add new task</Link>
-    <DragDropContext onDragEnd={onDragEnd}>
-      <div style={{ display: 'flex', gap: '20px' }}>
-        {data.columnOrder.map((columnId) => {
-          const column = data.columns[columnId];
-          return <ColumnComponent key={column.id} {...column} tasks={data.tasks} />;
-        })}
-      </div>
-    </DragDropContext>
+      <Link to="/add">Add new task</Link>
+      <DragDropContext onDragEnd={onDragEnd} onBeforeDragStart={onBeforeDragStart}>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          {data.columnOrder.map((columnId) => {
+            const column = data.columns[columnId];
+            return columnId !== 'delete-column' ? (
+              <ColumnComponent key={column.id} {...column} tasks={data.tasks} />
+            ) : (
+              <DeleteTaskComponent
+                key={column.id}
+                isVisible={showDeleteColumn}
+                taskID={taskToDelete}
+                setTaskToDelete={setTaskToDelete}
+              />
+            );
+          })}
+        </div>
+      </DragDropContext>
     </>
-    
   );
 };
 

@@ -10,6 +10,10 @@ const users: { email: string; passwordHash: string }[] = [];
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 
+/**
+ * Authentication controller for user registration and login.
+ * Handles password hashing, JWT generation, and user storage (in-memory).
+ */
 export const register = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -19,6 +23,11 @@ export const register = async (req: Request, res: Response) => {
   res.status(201).json({ message: 'User registered' });
 };
 
+/**
+ * Registers a new user by hashing the password and storing the user in memory.
+ * @param {Request} req - Express request object.
+ * @param {Response} res - Express response object.
+ */
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = users.find(u => u.email === email);
@@ -31,3 +40,9 @@ export const login = async (req: Request, res: Response) => {
 
   res.json({ token });
 };
+
+/**
+ * Logs in a user by verifying credentials and returns a JWT token if successful.
+ * @param {Request} req - Express request object.
+ * @param {Response} res - Express response object.
+ */
