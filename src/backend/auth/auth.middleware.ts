@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+
 
 /**
  * Extended Express Request interface to include user email.
@@ -21,8 +21,8 @@ export const authenticateJWT = (
   res: Response,
   next: NextFunction
 ): void => {
+  const JWT_SECRET = process.env.JWT_SECRET!;
   const authHeader = req.headers.authorization;
-
   if (!authHeader?.startsWith('Bearer ')) {
     res.status(401).json({ message: 'Missing token' });
     return;
