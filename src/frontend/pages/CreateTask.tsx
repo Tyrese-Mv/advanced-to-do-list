@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import {useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Container, Box, Typography, TextField, Button, Alert } from '@mui/material';
 
 export default function CreateTask() {
   const [formData, setFormData] = useState({
@@ -30,7 +31,7 @@ export default function CreateTask() {
       const data = await response.json();
       console.log('Task created:', data);
       setSuccess(true);
-      navigate("/main")
+      navigate('/main');
       return data;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
@@ -57,14 +58,14 @@ export default function CreateTask() {
     const description = task_description.trim();
 
     if (!description) {
-      setError('Both title and description are required');
+      setError('Task description is required');
       setIsLoading(false);
       return;
     }
 
     try {
       await createTask(description);
-      setFormData({task_description: '' });
+      setFormData({ task_description: '' });
     } catch (error) {
       console.error('Task creation failed:', error);
     } finally {
@@ -73,32 +74,37 @@ export default function CreateTask() {
   };
 
   return (
-    <div className="create-task-container">
-      <form className="create-task-form" onSubmit={handleTaskCreation}>
-        <h2 className="form-title">Create New Task</h2>
-
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">Task created successfully!</div>}
-
-        <div className="form-group">
-          <label htmlFor="task_description">Task Description</label>
-          <textarea
+    <Container maxWidth="sm">
+      <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography variant="h5" component="h1" gutterBottom>
+          Create New Task
+        </Typography>
+        <Box component="form" onSubmit={handleTaskCreation} sx={{ mt: 2, width: '100%' }}>
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {success && <Alert severity="success" sx={{ mb: 2 }}>Task created successfully!</Alert>}
+          <TextField
+            fullWidth
+            multiline
+            minRows={3}
+            margin="normal"
+            label="Task Description"
             id="task_description"
             name="task_description"
             value={formData.task_description}
             onChange={handleInputChange}
             required
           />
-        </div>
-
-        <button 
-          className="submit-button" 
-          type="submit"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Creating...' : 'Create Task'}
-        </button>
-      </form>
-    </div>
+          <Button
+            fullWidth
+            variant="contained"
+            type="submit"
+            sx={{ mt: 2 }}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Creating...' : 'Create Task'}
+          </Button>
+        </Box>
+      </Box>
+    </Container>
   );
 }
