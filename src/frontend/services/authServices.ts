@@ -25,7 +25,13 @@ const login = async (email: string, password: string) => {
         },
         body: JSON.stringify(userData)
     });
-    return response.json();
+    const data = await response.json();
+    if (!response.ok) {
+        const error = new Error(data.message || 'Login failed') as Error & { response?: { data: unknown } };
+        error.response = { data };
+        throw error;
+    }
+    return data;
 }
 
 export { register, login };
