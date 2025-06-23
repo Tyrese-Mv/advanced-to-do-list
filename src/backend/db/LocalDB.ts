@@ -73,14 +73,11 @@ export class LocalDB {
    * @returns {boolean} True if the task was removed, false otherwise.
    */
   public removeTaskById(userEmail: string, id: string): boolean {
-    console.log("task to be deleted:", id);
-    console.log('database before:', this.toString());
     if (!this.database[userEmail]) return false;
     const userData = this.database[userEmail];
     if (userData?.UserTasks) {
       const initialLength = userData.UserTasks.length;
       userData.UserTasks = userData.UserTasks.filter(task => task.id !== id);
-      console.log('database after:', this.toString());
       return userData.UserTasks.length < initialLength;
     }
     return false;
