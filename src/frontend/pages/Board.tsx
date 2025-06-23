@@ -33,20 +33,24 @@ const Board: React.FC = () => {
     <>
       <Link to="/add">Add new task</Link>
       <DragDropContext onDragEnd={onDragEnd} onBeforeDragStart={onBeforeDragStart}>
-        <div style={{ display: 'flex', gap: '20px' }}>
-          {data.columnOrder.map((columnId) => {
-            const column = data.columns[columnId];
-            return columnId !== 'delete-column' ? (
-              <ColumnComponent key={column.id} {...column} tasks={data.tasks} />
-            ) : (
-              <DeleteTaskComponent
-                key={column.id}
-                isVisible={showDeleteColumn}
-                taskID={taskToDelete}
-                setTaskToDelete={setTaskToDelete}
-              />
-            );
-          })}
+        {/* Regular columns in a row */}
+        <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+          {data.columnOrder
+            .filter((columnId) => columnId !== 'delete-column')
+            .map((columnId) => {
+              const column = data.columns[columnId];
+              return (
+                <ColumnComponent key={column.id} {...column} tasks={data.tasks} />
+              );
+            })}
+        </div>
+        {/* Delete column at the bottom, centered */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 40 }}>
+          <DeleteTaskComponent
+            isVisible={showDeleteColumn}
+            taskID={taskToDelete}
+            setTaskToDelete={setTaskToDelete}
+          />
         </div>
       </DragDropContext>
     </>
