@@ -1,9 +1,8 @@
 .delete-column {
-    position: fixed;
-    top: 100px;
-    right: 20px;
+    position: static !important;
+    margin: 0 auto;
     width: 200px;
-    min-height: 300px;
+    min-height: 100px;
     padding: 16px;
     background-color: #ffdddd;
     border: 2px dashed #b00020;
