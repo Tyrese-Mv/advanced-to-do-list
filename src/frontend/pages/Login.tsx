@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button, Container, Typography, Box } from '@mui/material';
+import { TextField, Button, Container, Typography, Box, Snackbar, Alert } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../services/authServices';
 
@@ -7,6 +7,8 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -20,7 +22,10 @@ const Login: React.FC = () => {
       }
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } }, message?: string };
-      console.error('Login failed', error.response?.data?.message || error.message);
+      const msg = error.response?.data?.message || error.message || 'Login failed';
+      setErrorMessage(msg);
+      setOpenSnackbar(true);
+      console.error('Login failed', msg);
     }
   };
 
@@ -62,6 +67,11 @@ const Login: React.FC = () => {
           </Typography>
         </Box>
       </Box>
+      <Snackbar open={openSnackbar} autoHideDuration={4000} onClose={() => setOpenSnackbar(false)} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+        <Alert onClose={() => setOpenSnackbar(false)} severity="error" sx={{ width: '100%' }}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
